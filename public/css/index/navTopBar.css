@@ -1,0 +1,189 @@
+@import url("https://fonts.googleapis.com/css?family=Chivo");
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Chivo', sans-serif;
+}
+
+/*********************************/
+.navigation {
+  height: 100%;
+  width: 250px;
+  background-color: rgba(7, 55, 87, 0.932); /*CORES*/
+  color: #fff;
+  position: fixed;
+  z-index: 9999;
+  top: 0;
+  right: calc(100% - 230px);
+  transition: right 0.5s;
+}
+
+.navigation .heading {
+  padding-top: 10%;
+  padding-left: 15px;
+  height: 80px;
+  border-bottom: 1px solid rgba(255, 255, 255, .1);
+  line-height: 20px;
+  text-align: center;
+}
+
+.navigation .menu {
+  list-style-type: none;
+}
+
+.navigation .menu li {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.navigation .menu a {
+  display: block;
+  padding: 15px;
+  line-height: 20px;
+  color: #fff;
+  text-decoration: none;
+  position: relative;
+  z-index: 0;
+  text-align: center;
+}
+
+.navigation .menu a::after {
+  content: '';
+  background-color: rgba(255, 255, 255, 0.1);
+  position: absolute;
+  top: 0;
+  right: 100%;
+  bottom: 0;
+  left: 0;
+  transition: left 0.25s, right 0.25s;
+}
+
+.navigation .menu a:hover::after {
+  right: 0;
+}
+
+.navigation .has-menu {
+  position: relative;
+}
+
+.navigation .has-menu::before {
+  content: '';
+  border-left: 1px solid rgba(255, 255, 255, 0.1);
+  height: 50px;
+  width: 50px;
+  cursor: pointer;
+  position: absolute;
+  top: 0;
+  right: 0;
+  z-index: 1;
+}
+
+.navigation .has-menu::after {
+  content: '\027A4';
+  padding: 15px 0;
+  height: 50px;
+  width: 50px;
+  line-height: 20px;
+  text-align: center;
+  cursor: pointer;
+  position: absolute;
+  top: 0;
+  right: 0;
+  z-index: 1;
+  transform: rotate(90deg);
+  transition: transform 0.25s;
+}
+
+.navigation .has-menu>.menu {
+  overflow: hidden;
+  max-height: auto;
+}
+
+.navigation .menu .menu {
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.navigation .has-menu>.menu>li>a {
+  padding-left: 45px;
+  transition: padding 1s;
+}
+
+.navigation .has-menu>.menu>li:last-child {
+  border-bottom: none;
+}
+
+/* Closed States */
+.navigation:not(.open) {
+  right: 100%;
+}
+
+.navigation .has-menu:not(.open)::after {
+  transform: rotate(-90deg);
+}
+
+.navigation .has-menu:not(.open)>.menu {
+  border-top: none;
+  max-height: 0;
+}
+
+.navigation .has-menu:not(.open)>.menu>li>a {
+  padding-left: 15px;
+}
+
+/* Active Item Style */
+.navigation .menu .active {
+  /* Different background for active item */
+  background-color: #215e91;
+  /* Different border for active item */
+  border-left: 1px solid #2a486f;
+  border-right: 1px solid #2a486f;
+  /* Slight shadow for active item */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.navigation ul {
+  list-style: none;
+  /* Removes bullet points from the list */
+  padding: 0;
+  /* Removes default padding */
+  margin: 0;
+  /* Removes default margin */
+  text-align: center;
+  /* Centers all list items */
+}
+
+.navigation form {
+  display: inline-block;
+  /* Allows the form to only take up as much space as needed */
+}
+
+.navigation .logout-icon {
+  width: 50px;
+  padding: 10px;
+  cursor: pointer;
+  opacity: 1;
+  border-radius: 10px;
+  transition: opacity 0.5s, background 0.5s;
+  display: block;
+  margin: auto;
+}
+
+/*********************************/
+.topnav {
+  height: auto;
+  width: 250px;
+  background-color: transparent;
+  color: #fff;
+  position: fixed;
+  top: 0;
+  right: calc(100% - 230px);
+  z-index: 9999;
+
+}
+.topnav .heading {
+  padding-top: 10%;
+  padding-left: 15px;
+  height: 80px;
+  text-align: center;
+}
