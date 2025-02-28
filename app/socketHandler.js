@@ -30,12 +30,25 @@ module.exports = function (io, streams, db) {
       }
     });
 
+    client.on('validateToken', (token, callback) => {
+      try {
+        const decoded = jwt.verify(token, SECRET_KEY);
+        if (typeof callback === "function") {
+          callback({ valid: true, user: decoded });
+        }
+      } catch (err) {
+        if (typeof callback === "function") {
+          callback({ valid: false, message: "Invalid or expired token" });
+        }
+      }
+    });
+
     client.on('auth', async (credentials) => {
       const identifier = credentials.email;
       const isEmail = identifier.includes('@');
       const field = isEmail ? 'email' : 'name';
       const sql = `SELECT * FROM users WHERE ${field} = ? LIMIT 1`;
-      
+
       db.query(sql, [identifier], async (error, results) => {
         if (error) {
           client.emit('authResponse', { success: false, message: 'Database error' });
@@ -45,15 +58,15 @@ module.exports = function (io, streams, db) {
           client.emit('authResponse', { success: false, message: 'Invalid credentials' });
           return;
         }
-        
+
         const user = results[0];
         const match = await bcrypt.compare(credentials.password, user.password);
         if (match) {
           // Create tokens
           const accessToken = jwt.sign({ id: user.id, name: user.name }, SECRET_KEY, { expiresIn: '1d' });
           const refreshToken = jwt.sign({ id: user.id }, SECRET_KEY, { expiresIn: '7d' });
-          
-          // Query the user's force from user_forces table
+
+          // Query the user's force from users_forces table
           const forceSql = `SELECT force_id FROM users_forces WHERE user_id = ? LIMIT 1`;
           db.query(forceSql, [user.id], (forceError, forceResults) => {
             if (forceError || !forceResults || forceResults.length === 0) {
@@ -95,111 +108,52 @@ module.exports = function (io, streams, db) {
         }
       });
     });
-    
-    
-
-    client.on('validateToken', (token, callback) => {
-      try {
-        const decoded = jwt.verify(token, SECRET_KEY);
-        if (typeof callback === "function") {
-          callback({ valid: true, user: decoded });
-        }
-      } catch (err) {
-        if (typeof callback === "function") {
-          callback({ valid: false, message: "Invalid or expired token" });
-        }
-      }
-    });
-
 
 
     client.on('getDrones', (options) => {
-      console.log(`-- ${client.id} requested drones for category: ${options.name} --`);
-    
-      // Ensure the client sends both category and pilot information
-      if (!options.name || !options.pilot) {
+      // Ensure options.name is provided and is an array
+      if (!options.name || !Array.isArray(options.name)) {
         client.emit("getDronesResponse", { 
           success: false, 
-          message: "Category and pilot are required." 
+          message: "Options.name must be an array of drone IDs." 
         });
         return;
       }
     
-      // Normalize inputs
-      const category = options.name.trim().toUpperCase();  // e.g. "ALFA_INT"
-      const pilot = options.pilot.trim();
+      console.log(`-- ${client.id} requested drones using options.name:`, options.name);
     
       // Get active streams for comparison
       const streamList = streams.getStreams();
-      console.log("Current streams:", streamList);
+      console.log("Active streams:", streamList);
     
-      // 1. Get the user ID for the given pilot name
-      const userSql = `SELECT id FROM users WHERE name = ? LIMIT 1`;
-      db.query(userSql, [pilot], (userErr, userResults) => {
-        if (userErr || !userResults || userResults.length === 0) {
-          console.log("User not found for pilot", pilot);
-          client.emit("getDronesResponse", { success: false, message: "Pilot not found." });
-          return;
-        }
-        const userId = userResults[0].id;
+      // Create a set of active drone names (normalized to uppercase and trimmed)
+      const activeNames = new Set(streamList.map(stream => stream.name.toUpperCase().trim()));
+      console.log("Active names:", activeNames);
     
-        // 2. Get the force for that user from user_forces table
-        const forceSql = `SELECT force_id FROM user_forces WHERE user_id = ? LIMIT 1`;
-        db.query(forceSql, [userId], (forceErr, forceResults) => {
-          if (forceErr || !forceResults || forceResults.length === 0) {
-            console.log("Force not found for user", userId);
-            client.emit("getDronesResponse", { success: false, message: "Force not found." });
-            return;
-          }
-          const forceId = forceResults[0].force_id;
-    
-          // 3. Get all potential drone IDs from forces_drones for that force.
-          // We assume the serial_number field holds values like "ALFA_INT-COM001", "ALFA_EXT-COM001", etc.
-          // We filter by category using a LIKE pattern.
-          const pattern = category + '-%';  // e.g. "ALFA_INT-%"
-          const dronesSql = `SELECT serial_number FROM forces_drones WHERE force_id = ? AND serial_number LIKE ?`;
-          db.query(dronesSql, [forceId, pattern], (droneErr, droneResults) => {
-            if (droneErr) {
-              console.log("Error fetching drones for force", forceId, droneErr);
-              client.emit("getDronesResponse", { success: false, message: "Error fetching drones." });
-              return;
-            }
-            // Build an array of potential drone IDs from the database (normalized to uppercase)
-            let potentialDroneIDs = [];
-            if (droneResults && droneResults.length > 0) {
-              potentialDroneIDs = droneResults.map(row => row.serial_number.toUpperCase().trim());
-            }
-            console.log("Potential drone IDs from DB:", potentialDroneIDs);
-    
-            // 4. Filter out any drone IDs already in use.
-            let availableDrones = [];
-            potentialDroneIDs.forEach(droneId => {
-              const expectedName = droneId.toLowerCase();  // our active stream names are compared in lowercase
-              const exists = streamList.some(stream => stream.name.toLowerCase().trim() === expectedName);
-              if (!exists) {
-                availableDrones.push(droneId);
-              }
-            });
-            console.log("Available drones:", availableDrones);
-    
-            if (availableDrones.length > 0) {
-              client.emit("getDronesResponse", { 
-                success: true, 
-                available: availableDrones 
-              });
-            } else {
-              client.emit("getDronesResponse", { 
-                success: false, 
-                message: "No drones available for this category." 
-              });
-            }
-          });
-        });
+      // Filter out any drone IDs in options.name that are already in use
+      const available = options.name.filter(droneId => {
+        return !activeNames.has(droneId.toUpperCase().trim());
       });
+    
+      console.log("Available drones:", available);
+    
+      if (available.length > 0) {
+        client.emit("getDronesResponse", { 
+          success: true, 
+          available: available 
+        });
+      } else {
+        client.emit("getDronesResponse", { 
+          success: false, 
+          message: "No drones available." 
+        });
+      }
     });
     
     
+
     client.on('update', (options) => {
+      console.log("UPDATE:", client.id + " ", options.name + " ", options.pilot + " ");
       streams.update(client.id, options.name, options.pilot);
       io.emit('streamUpdate', { id: client.id, name: options.name });
     });
