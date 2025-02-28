@@ -1,6 +1,5 @@
 name: 'deploy'
 
-
 on:
   push:
     branches:
@@ -24,6 +23,7 @@ jobs:
           branch: 'main' # the branch on the Dokku server to deploy to
           git_push_flags: '-vvv'
           git_remote_url: ${{ secrets.DOKKU_GIT_REMOTE_URL }}
+          ssh_host_key: ${{ secrets.DOKKU_SSH_HOST_KEY }}
           ssh_private_key: ${{ secrets.DOKKU_SSH_PRIVATE_KEY }}
           trace: '1'
 
