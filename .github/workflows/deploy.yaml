@@ -19,31 +19,5 @@ jobs:
         uses: dokku/github-action@master
         with:
           branch: 'main' # the branch on the Dokku server to deploy to
-          git_remote_url: "ssh://dokku@dronestream.arditi.pt:22/dronestream-app"
-          ssh_private_key: "-----BEGIN OPENSSH PRIVATE KEY-----
-b3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAABFwAAAAdzc2gtcn
-NhAAAAAwEAAQAAAQEAnMMb/AGMJRuNAai9ior72mi0zrsYrj69oYVsZAIZcR52gYvCiBr0
-X5TitEPGAF8NOAUhogg5a3unbnWz86i9dbf0jeDKE9WAQchWVON8Yx7T9oIAi/HpQSkZ1m
-lW+yx0QZe1u9KV+AkptE36/XzZJCXTDsVlCd8bN6W0nOeFaCjFJKhifKrvQonuUhAjhNlO
-Rg43l8+jxheYv2PsYEBSytbQUT2inM0ndQQu1LNx8w8JwDQNQVQfmeqJsYl2C4XkpQWc8g
-QPmKn0/zqacb9aVD1s/MbkPN3jdTlzOmMqkbq88my9qergLGWAk+XbKMI/Y9+ouaTCtGwd
-BvUmOYR/YwAAA9Dx1yRt8dckbQAAAAdzc2gtcnNhAAABAQCcwxv8AYwlG40BqL2KivvaaL
-TOuxiuPr2hhWxkAhlxHnaBi8KIGvRflOK0Q8YAXw04BSGiCDlre6dudbPzqL11t/SN4MoT
-1YBByFZU43xjHtP2ggCL8elBKRnWaVb7LHRBl7W70pX4CSm0Tfr9fNkkJdMOxWUJ3xs3pb
-Sc54VoKMUkqGJ8qu9Cie5SECOE2U5GDjeXz6PGF5i/Y+xgQFLK1tBRPaKczSd1BC7Us3Hz
-DwnANA1BVB+Z6omxiXYLheSlBZzyBA+YqfT/Oppxv1pUPWz8xuQ83eN1OXM6YyqRurzybL
-2p6uAsZYCT5dsowj9j36i5pMK0bB0G9SY5hH9jAAAAAwEAAQAAAQAfdYhIKodVaxIBIzvm
-cb3ZNuoSEroBPdYQdBYse79fVB20IbgIWGByTg6w3mj96hVdCKqXOc9MIqSXJkfWviZHWY
-NadaIYGOCEUxAAOSbdPXKMJcq2SvXkfbsRrFIoVeN+xlNSPhCaljwoUv3roQJynqScckC0
-mnF72WVFl7DOFhAD9t9odCl3g8G9nHLhFh66/rAM4329XJSJ7SaTLs1l4uTQhojay4A03f
-f6Yin3FjGTbOE+td+4tdpHIgtqgrw6WbL/66wuY10xxUcJpn/9qglr4k5oJM+oj7J7NoMc
-eUmTcSTL0JTK76JyBrgHn/hHjA6kkYlNhQC5yzOlXYoBAAAAgCu9q7xibf2c5aOvD5oveB
-hlsRGf0adPDwIu2+MXuVmBEtXqvbejOjao3fAPkgvmhDnQ+xjwEB4FzXwSvTnWBJfunGil
-99CFvPqYWARZrthxW3ODXRl0tnW1b8YB9XQ37pRaC+zMmm1/BS7FjKV47Ydloy8IXIzht6
-nXGLzazRp7AAAAgQDQAPA7HbxaBxhWrMbcg5ZaOOc3OSkF6s90NyYUCs69GvBi+F3MerDq
-DrDYkqVHxwJ7KQhq8f/Olh0JhyxJP7XYCUmLy97fcibM1w7dhKQYc0LaZxPe34QqgvvOSc
-qpwUBWupOkRWpM7TW3Jhoz4XVbJj0hTDJ4j2ba0KXVxX3U2QAAAIEAwO9DnHvTc16wojU0
-ZtG/h/YoCD3hlR6plcSgj3OMW1t+0n9FfkhVBLYWqx4K9zpfOvBFZGuIC5egSMnj+hllaD
-oj05vky/vawZg9UYB2obhMB+F2Fzl5Bot6yDsqSaHVOIA0MH9+EmZXY95bV0WWZGfn29B6
-vWTl1nqX7beVoJsAAAAYdml0b3IuYWd1aWFyQGxvd3Bvd2Vyd2ViAQID
------END OPENSSH PRIVATE KEY-----"
+          git_remote_url: ${{ secrets.DOKKU_GIT_REMOTE_URL}}
+          ssh_private_key: ${{ secrets.DOKKU_SSH_PRIVATE_KEY }}
