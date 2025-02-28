@@ -19,5 +19,5 @@ jobs:
         uses: dokku/github-action@master
         with:
           branch: 'main' # the branch on the Dokku server to deploy to
-          git_remote_url: ${{ secrets.DOKKU_GIT_REMOTE_URL}}
+          git_remote_url: "ssh://dokku@dronestream.arditi.pt:22/dronestream-app"
           ssh_private_key: ${{ secrets.DOKKU_SSH_PRIVATE_KEY }}
